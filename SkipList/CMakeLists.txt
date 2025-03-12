@@ -3,4 +3,6 @@ project(SkipList)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(SkipList main.cpp)
+add_executable(SkipList test.cpp
+        Node/Node.cpp
+        Node/Node.h)
