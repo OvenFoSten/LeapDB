@@ -6,8 +6,8 @@ set(CMAKE_CXX_STANDARD 20)
 add_executable(SkipList test.cpp
         LinkList/LinkList.cpp
         LinkList/LinkList.h
-        LinkList/Node/Node.cpp
-        LinkList/Node/Node.h
+        Node/Node.cpp
+        Node/Node.h
         Vector/Vector.cpp
         Vector/Vector.h)
 
