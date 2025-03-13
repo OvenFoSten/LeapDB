@@ -5,8 +5,6 @@
 #include "Node.h"
 
 namespace ds {
-    Node::Node() : data_index(0) {
-        next_index = Vector<std::size_t>(INITIAL_LEVEL);
-        prev_index = Vector<std::size_t>(INITIAL_LEVEL);
+    Node::Node(int level): data_index(0), next_index(level), prev_index(level) {
     }
 } // ds

@@ -13,13 +13,13 @@ namespace {
 }
 
 namespace ds {
-
     template<typename T>
     class Vector {
     private:
         T *data;
         size_t size;
         size_t capacity;
+
     public:
         explicit Vector(size_t size) : size(size), capacity(size) {
             data = new T[size];
@@ -61,8 +61,11 @@ namespace ds {
         T getBack() {
             return data[size - 1];
         }
-    };
 
+        T &operator=(const Vector &other) = delete;
+
+        Vector(const Vector &other) = delete;
+    };
 } // ds
 
 #endif //SKIPLIST_VECTOR_H

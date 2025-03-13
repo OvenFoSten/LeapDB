@@ -8,11 +8,6 @@
 #include <cstddef>
 #include "Vector/Vector.h"
 
-namespace {
-    //Configurations
-    const int INITIAL_LEVEL = 4;
-}
-
 namespace ds {
     class Node {
     private:
@@ -20,9 +15,12 @@ namespace ds {
         ds::Vector<std::size_t> next_index;
         ds::Vector<std::size_t> prev_index;
     public:
-        Node();
+        explicit Node(int level);
 
         ~Node() = default;
+
+        template<typename T>
+        friend class SkipList;
     };
 }
 
