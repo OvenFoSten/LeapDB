@@ -4,5 +4,11 @@ project(SkipList)
 set(CMAKE_CXX_STANDARD 20)
 
 add_executable(SkipList test.cpp
-        Node/Node.cpp
-        Node/Node.h)
+        LinkList/LinkList.cpp
+        LinkList/LinkList.h
+        LinkList/Node/Node.cpp
+        LinkList/Node/Node.h
+        Vector/Vector.cpp
+        Vector/Vector.h)
+
+INCLUDE_DIRECTORIES(./)
