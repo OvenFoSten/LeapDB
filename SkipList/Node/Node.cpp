@@ -5,6 +5,4 @@
 #include "Node.h"
 
 namespace ds {
-    Node::Node(int level): data_index(0), next_index(level), prev_index(level) {
-    }
 } // ds

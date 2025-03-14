@@ -25,6 +25,13 @@ namespace ds {
             data = new T[size];
         }
 
+        explicit Vector(size_t size, const T &value) : size(size), capacity(size) {
+            data = new T[size];
+            for (size_t i = 0; i < size; i++) {
+                data[i] = value;
+            }
+        }
+
         Vector() : size(0), capacity(INITIAL_CAPACITY) {
             data = new T[capacity];
         }
