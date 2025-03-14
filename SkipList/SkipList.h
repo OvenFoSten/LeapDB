@@ -84,7 +84,7 @@ namespace ds {
                             current->prev_index[i] = new_index;
                         }
                         return &nodes[new_index];
-                    }else {
+                    } else {
                         find_level--;
                         continue;
                     }
@@ -113,6 +113,7 @@ namespace ds {
                 tail = &nodes[0];
                 return;
             }
+            findOrCreateNode(key, value);
         }
     };
 } // ds
