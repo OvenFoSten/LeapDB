@@ -21,12 +21,12 @@ namespace ds {
         size_t capacity;
 
     public:
-        explicit Vector(size_t size) : size(size), capacity(size) {
-            data = new T[size];
+        explicit Vector(size_t size) : size(size), capacity(INITIAL_CAPACITY) {
+            data = new T[capacity];
         }
 
-        explicit Vector(size_t size, const T &value) : size(size), capacity(size) {
-            data = new T[size];
+        explicit Vector(size_t size, const T &value) : size(size), capacity(INITIAL_CAPACITY) {
+            data = new T[capacity];
             for (size_t i = 0; i < size; i++) {
                 data[i] = value;
             }
@@ -44,7 +44,7 @@ namespace ds {
             return size;
         }
 
-        T operator[](size_t index) {
+        T &operator[](size_t index) {
             return data[index];
         }
 
@@ -69,9 +69,32 @@ namespace ds {
             return data[size - 1];
         }
 
-        T &operator=(const Vector &other) = delete;
+        T *begin() {
+            return data;
+        }
 
-        Vector(const Vector &other) = delete;
+        Vector &operator=(const Vector &other) {
+            if (this == &other) {
+                return *this;
+            }
+            delete[] data;
+            size = other.size;
+            capacity = other.capacity;
+            data = new T[capacity];
+            for (size_t i = 0; i < size; i++) {
+                data[i] = other.data[i];
+            }
+            return *this;
+        }
+
+        Vector(const Vector &other) {
+            size = other.size;
+            capacity = other.capacity;
+            data = new T[capacity];
+            for (size_t i = 0; i < size; i++) {
+                data[i] = other.data[i];
+            }
+        }
     };
 } // ds
 

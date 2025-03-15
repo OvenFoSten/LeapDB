@@ -27,13 +27,34 @@ namespace ds {
                                                                            prev_index(level, NODE_INVALID_INDEX),
                                                                            key(key),
                                                                            value(value),
-                                                                           key_int64(reinterpret_cast<int64_t>(key)),
+                                                                           key_int64(static_cast<int64_t>(key)),
                                                                            self_index(self_index) {
+        }
+
+        explicit Node(): next_index(0), prev_index(0), key(), value(), key_int64(0), self_index(0) {
+        }
+
+        void setLevel(int level) {
+            next_index = ds::Vector<int>(level, NODE_INVALID_INDEX);
+            prev_index = ds::Vector<int>(level, NODE_INVALID_INDEX);
         }
 
         ~Node() = default;
 
-        template<typename T>
+        Node &operator=(const Node &other) {
+            if (this == &other) {
+                return *this;
+            }
+            next_index = other.next_index;
+            prev_index = other.prev_index;
+            key = other.key;
+            value = other.value;
+            key_int64 = other.key_int64;
+            self_index = other.self_index;
+            return *this;
+        }
+
+        template<typename K, typename V>
         friend class SkipList;
     };
 }
