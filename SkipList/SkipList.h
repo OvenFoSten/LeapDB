@@ -121,13 +121,29 @@ namespace ds {
             findOrCreateNode(key, value, score);
         }
 
-        void visiable() {
-            for (int level = current_level_count - 1; level >= BOTTOM_LEVEL; --level) {
-                for (int i = 0; i < nodes.getSize(); ++i) {
-                    if (nodes[i].next_index[level] == NODE_INVALID_INDEX) {
-                        std::cout << "NULL ";
+        void showStructure() {
+            std::vector<std::vector<int> > v(current_level_count);
+            auto *current = head;
+            while (true) {
+                for (int i = 0; i < current_level_count; ++i) {
+                    v[i].push_back(current->next_index[i]);
+                }
+                if (current->next_index[BOTTOM_LEVEL] == NODE_INVALID_INDEX) {
+                    break;
+                }
+                current = &nodes[current->next_index[BOTTOM_LEVEL]];
+            }
+
+            std::cout << "SkipList Structure:" << std::endl;
+            for (int i = current_level_count - 1; i >= BOTTOM_LEVEL; --i) {
+                std::cout << "Level " << i << ": ";
+                if (i == BOTTOM_LEVEL)std::cout << head->key << " ";
+                else std::cout << "  ";
+                for (const auto index: v[i]) {
+                    if (index == NODE_INVALID_INDEX) {
+                        std::cout << "  ";
                     } else {
-                        std::cout << nodes[i].key << " ";
+                        std::cout << nodes[index].key << " ";
                     }
                 }
                 std::cout << std::endl;

@@ -28,7 +28,7 @@ int main() {
     }
     std::cout << std::endl;
 
-    test.visiable();
+    test.showStructure();
 
     return 0;
 }
