@@ -12,15 +12,14 @@
 
 #include<iostream>
 
-namespace {
-    constexpr int INITIAL_LEVEL_COUNT = 4;
-    constexpr int BOTTOM_LEVEL = 0;
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis(0, 1);
-}
-
 namespace ds {
+    namespace detail{
+        constexpr int INITIAL_LEVEL_COUNT = 4;
+        constexpr int BOTTOM_LEVEL = 0;
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> dis(0, 1);
+    }
     template<typename KEY, typename VALUE>
     class SkipList {
     private:
@@ -46,12 +45,12 @@ namespace ds {
                     jump_index = current->next_index[find_level];
                 }
                 if (jump_index == NODE_INVALID_INDEX) {
-                    if (find_level == BOTTOM_LEVEL) {
+                    if (find_level == detail::BOTTOM_LEVEL) {
                         auto new_index = nodes.getSize();
                         nodes.pushBack(Node<KEY, VALUE>(current_level_count, new_index, key, value, score));
                         if (score < current->score) {
                             for (int i = 0; i < current_level_count; ++i) {
-                                auto factor = dis(gen) || !i;
+                                auto factor = detail::dis(detail::gen) || !i;
                                 if (!factor)break;
                                 head->prev_index[i] = new_index;
                                 nodes[new_index].next_index[i] = head->self_index;
@@ -60,7 +59,7 @@ namespace ds {
                         }
                         if (score > current->score) {
                             for (int i = 0; i < current_level_count; ++i) {
-                                auto factor = dis(gen) || !i;
+                                auto factor = detail::dis(detail::gen) || !i;
                                 if (!factor)break;
                                 tail->next_index[i] = new_index;
                                 nodes[new_index].prev_index[i] = tail->self_index;
@@ -74,11 +73,11 @@ namespace ds {
                 }
 
                 if (nodes[jump_index].score > score && current->score < score) {
-                    if (find_level == BOTTOM_LEVEL) {
+                    if (find_level == detail::BOTTOM_LEVEL) {
                         auto new_index = nodes.getSize();
                         nodes.pushBack(Node<KEY, VALUE>(current_level_count, new_index, key, value, score));
                         for (int i = 0; i < current_level_count; ++i) {
-                            auto factor = dis(gen) || !i;
+                            auto factor = detail::dis(detail::gen) || !i;
                             if (!factor)break;
                             nodes[jump_index].prev_index[i] = new_index;
                             nodes[new_index].next_index[i] = jump_index;
@@ -101,7 +100,7 @@ namespace ds {
         SkipList(int64_t (*calc_score)(const KEY &)): head(nullptr),
                                                       tail(nullptr),
                                                       nodes(0),
-                                                      current_level_count(INITIAL_LEVEL_COUNT),
+                                                      current_level_count(detail::INITIAL_LEVEL_COUNT),
                                                       calc_score(calc_score) {
         }
 
@@ -128,16 +127,16 @@ namespace ds {
                 for (int i = 0; i < current_level_count; ++i) {
                     v[i].push_back(current->next_index[i]);
                 }
-                if (current->next_index[BOTTOM_LEVEL] == NODE_INVALID_INDEX) {
+                if (current->next_index[detail::BOTTOM_LEVEL] == NODE_INVALID_INDEX) {
                     break;
                 }
-                current = &nodes[current->next_index[BOTTOM_LEVEL]];
+                current = &nodes[current->next_index[detail::BOTTOM_LEVEL]];
             }
 
             std::cout << "SkipList Structure:" << std::endl;
-            for (int i = current_level_count - 1; i >= BOTTOM_LEVEL; --i) {
+            for (int i = current_level_count - 1; i >= detail::BOTTOM_LEVEL; --i) {
                 std::cout << "Level " << i << ": ";
-                if (i == BOTTOM_LEVEL)std::cout << head->key << " ";
+                if (i == detail::BOTTOM_LEVEL)std::cout << head->key << " ";
                 else std::cout << "  ";
                 for (const auto index: v[i]) {
                     if (index == NODE_INVALID_INDEX) {

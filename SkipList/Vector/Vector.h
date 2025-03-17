@@ -7,12 +7,10 @@
 
 #include <cstddef>
 
-namespace {
-    //Configurations
-    const int INITIAL_CAPACITY = 16;
-}
-
 namespace ds {
+    namespace detail {
+        const int INITIAL_VECTOR_CAPACITY = 16;
+    }
     template<typename T>
     class Vector {
     private:
@@ -21,18 +19,18 @@ namespace ds {
         size_t capacity;
 
     public:
-        explicit Vector(size_t size) : size(size), capacity(INITIAL_CAPACITY) {
+        explicit Vector(size_t size) : size(size), capacity(detail::INITIAL_VECTOR_CAPACITY) {
             data = new T[capacity];
         }
 
-        explicit Vector(size_t size, const T &value) : size(size), capacity(INITIAL_CAPACITY) {
+        explicit Vector(size_t size, const T &value) : size(size), capacity(detail::INITIAL_VECTOR_CAPACITY) {
             data = new T[capacity];
             for (size_t i = 0; i < size; i++) {
                 data[i] = value;
             }
         }
 
-        Vector() : size(0), capacity(INITIAL_CAPACITY) {
+        Vector() : size(0), capacity(detail::INITIAL_VECTOR_CAPACITY) {
             data = new T[capacity];
         }
 
