@@ -19,19 +19,21 @@ namespace ds {
         ds::Vector<int> prev_index;
         KEY key;
         VALUE value;
-        int64_t key_int64;
         size_t self_index;
+        int64_t score;
 
     public:
-        explicit Node(int level, size_t self_index, KEY key, VALUE value): next_index(level, NODE_INVALID_INDEX),
-                                                                           prev_index(level, NODE_INVALID_INDEX),
-                                                                           key(key),
-                                                                           value(value),
-                                                                           key_int64(static_cast<int64_t>(key)),
-                                                                           self_index(self_index) {
+        explicit Node(int level, size_t self_index,
+                      KEY key, VALUE value,
+                      int64_t score): next_index(level, NODE_INVALID_INDEX),
+                                      prev_index(level, NODE_INVALID_INDEX),
+                                      key(key),
+                                      value(value),
+                                      self_index(self_index),
+                                      score(score) {
         }
 
-        explicit Node(): next_index(0), prev_index(0), key(), value(), key_int64(0), self_index(0) {
+        explicit Node(): next_index(0), prev_index(0), key(), value(), self_index(0), score(0) {
         }
 
         void setLevel(int level) {
@@ -49,8 +51,8 @@ namespace ds {
             prev_index = other.prev_index;
             key = other.key;
             value = other.value;
-            key_int64 = other.key_int64;
             self_index = other.self_index;
+            score = other.score;
             return *this;
         }
 

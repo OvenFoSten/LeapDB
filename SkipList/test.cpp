@@ -2,8 +2,12 @@
 #include"SkipList.h"
 #include<random>
 
+int64_t calc_score(const int &key) {
+    return static_cast<int64_t>(key);
+}
+
 int main() {
-    ds::SkipList<int, int> test;
+    ds::SkipList<int, int> test(calc_score);
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> dis(0, 9);
@@ -19,7 +23,7 @@ int main() {
     }
 
     std::cout << "Insert: ";
-    for (const auto &i: v){
+    for (const auto &i: v) {
         std::cout << i << " ";
     }
     std::cout << std::endl;

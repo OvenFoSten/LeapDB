@@ -29,26 +29,27 @@ namespace ds {
         ds::Vector<Node<KEY, VALUE> > nodes;
         int current_level_count;
 
-        Node<KEY, VALUE> *findOrCreateNode(const KEY &key, const VALUE &value) {
+        int64_t (*calc_score)(const KEY &);
+
+        Node<KEY, VALUE> *findOrCreateNode(const KEY &key, const VALUE &value, int64_t score) {
             auto *current = head;
             auto find_level = current_level_count - 1;
-            auto key_int64 = static_cast<int64_t>(key);
 
             while (true) {
-                if (key_int64 == current->key_int64) {
+                if (score == current->score) {
                     return current;
                 }
                 auto jump_index = NODE_INVALID_INDEX;
-                if (key_int64 < current->key_int64) {
+                if (score < current->score) {
                     jump_index = current->prev_index[find_level];
-                } else if (key_int64 > current->key_int64) {
+                } else if (score > current->score) {
                     jump_index = current->next_index[find_level];
                 }
                 if (jump_index == NODE_INVALID_INDEX) {
                     if (find_level == BOTTOM_LEVEL) {
                         auto new_index = nodes.getSize();
-                        nodes.pushBack(Node<KEY, VALUE>(current_level_count, new_index, key, value));
-                        if (key_int64 < current->key_int64) {
+                        nodes.pushBack(Node<KEY, VALUE>(current_level_count, new_index, key, value, score));
+                        if (score < current->score) {
                             for (int i = 0; i < current_level_count; ++i) {
                                 auto factor = dis(gen) || !i;
                                 if (!factor)break;
@@ -57,7 +58,7 @@ namespace ds {
                             }
                             head = &nodes[new_index];
                         }
-                        if (key_int64 > current->key_int64) {
+                        if (score > current->score) {
                             for (int i = 0; i < current_level_count; ++i) {
                                 auto factor = dis(gen) || !i;
                                 if (!factor)break;
@@ -72,10 +73,10 @@ namespace ds {
                     continue;
                 }
 
-                if (nodes[jump_index].key_int64 > key_int64 && current->key_int64 < key_int64) {
+                if (nodes[jump_index].score > score && current->score < score) {
                     if (find_level == BOTTOM_LEVEL) {
                         auto new_index = nodes.getSize();
-                        nodes.pushBack(Node<KEY, VALUE>(current_level_count, new_index, key, value));
+                        nodes.pushBack(Node<KEY, VALUE>(current_level_count, new_index, key, value, score));
                         for (int i = 0; i < current_level_count; ++i) {
                             auto factor = dis(gen) || !i;
                             if (!factor)break;
@@ -97,10 +98,11 @@ namespace ds {
         }
 
     public:
-        SkipList(): head(nullptr),
-                    tail(nullptr),
-                    nodes(0),
-                    current_level_count(INITIAL_LEVEL_COUNT) {
+        SkipList(int64_t (*calc_score)(const KEY &)): head(nullptr),
+                                                      tail(nullptr),
+                                                      nodes(0),
+                                                      current_level_count(INITIAL_LEVEL_COUNT),
+                                                      calc_score(calc_score) {
         }
 
         SkipList &operator=(const SkipList &other) = delete;
@@ -108,23 +110,24 @@ namespace ds {
         SkipList(const SkipList &other) = delete;
 
         void insert(KEY key, VALUE value) {
+            auto score = calc_score(key);
             //First Handle the case when the list is empty
             if (head == nullptr && tail == nullptr) {
-                nodes.pushBack(Node<KEY, VALUE>(current_level_count, 0, key, value));
+                nodes.pushBack(Node<KEY, VALUE>(current_level_count, 0, key, value, score));
                 head = nodes.begin();
                 tail = nodes.begin();
                 return;
             }
-            findOrCreateNode(key, value);
+            findOrCreateNode(key, value, score);
         }
 
         void visiable() {
             for (int level = current_level_count - 1; level >= BOTTOM_LEVEL; --level) {
-                for (int i = 0;i<nodes.getSize();++i) {
+                for (int i = 0; i < nodes.getSize(); ++i) {
                     if (nodes[i].next_index[level] == NODE_INVALID_INDEX) {
                         std::cout << "NULL ";
                     } else {
-                        std::cout << nodes[i].key<<" ";
+                        std::cout << nodes[i].key << " ";
                     }
                 }
                 std::cout << std::endl;
