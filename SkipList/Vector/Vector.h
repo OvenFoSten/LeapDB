@@ -6,11 +6,13 @@
 #define SKIPLIST_VECTOR_H
 
 #include <cstddef>
+#include <stdexcept>
 
 namespace ds {
     namespace detail {
-        const int INITIAL_VECTOR_CAPACITY = 16;
+        constexpr int INITIAL_VECTOR_CAPACITY = 16;
     }
+
     template<typename T>
     class Vector {
     private:
@@ -19,11 +21,17 @@ namespace ds {
         size_t capacity;
 
     public:
-        explicit Vector(size_t size) : size(size), capacity(detail::INITIAL_VECTOR_CAPACITY) {
+        explicit Vector(size_t size) : size(size),
+                                       capacity((size > detail::INITIAL_VECTOR_CAPACITY)
+                                                    ? size
+                                                    : detail::INITIAL_VECTOR_CAPACITY) {
             data = new T[capacity];
         }
 
-        explicit Vector(size_t size, const T &value) : size(size), capacity(detail::INITIAL_VECTOR_CAPACITY) {
+        explicit Vector(size_t size, const T &value) : size(size),
+                                                       capacity((size > detail::INITIAL_VECTOR_CAPACITY)
+                                                                    ? size
+                                                                    : detail::INITIAL_VECTOR_CAPACITY) {
             data = new T[capacity];
             for (size_t i = 0; i < size; i++) {
                 data[i] = value;
@@ -46,7 +54,7 @@ namespace ds {
             return data[index];
         }
 
-        void pushBack(T value) {
+        void pushBack(const T &value) {
             if (size == capacity) {
                 capacity *= 2;
                 T *new_data = new T[capacity];
@@ -69,6 +77,10 @@ namespace ds {
 
         T *begin() {
             return data;
+        }
+
+        T *end() {
+            return data + size;
         }
 
         Vector &operator=(const Vector &other) {
