@@ -6,7 +6,6 @@
 #define SKIPLIST_VECTOR_H
 
 #include <cstddef>
-#include <stdexcept>
 
 namespace ds {
     namespace detail {
@@ -21,17 +20,15 @@ namespace ds {
         size_t capacity;
 
     public:
-        explicit Vector(size_t size) : size(size),
-                                       capacity((size > detail::INITIAL_VECTOR_CAPACITY)
-                                                    ? size
-                                                    : detail::INITIAL_VECTOR_CAPACITY) {
+        explicit Vector(size_t size)
+            : size(size),
+              capacity((size > detail::INITIAL_VECTOR_CAPACITY) ? size : detail::INITIAL_VECTOR_CAPACITY) {
             data = new T[capacity];
         }
 
-        explicit Vector(size_t size, const T &value) : size(size),
-                                                       capacity((size > detail::INITIAL_VECTOR_CAPACITY)
-                                                                    ? size
-                                                                    : detail::INITIAL_VECTOR_CAPACITY) {
+        explicit Vector(size_t size, const T &value)
+            : size(size),
+              capacity((size > detail::INITIAL_VECTOR_CAPACITY) ? size : detail::INITIAL_VECTOR_CAPACITY) {
             data = new T[capacity];
             for (size_t i = 0; i < size; i++) {
                 data[i] = value;
@@ -46,7 +43,7 @@ namespace ds {
             delete[] data;
         }
 
-        size_t getSize() const {
+        [[nodiscard]] size_t getSize() const {
             return size;
         }
 
@@ -104,6 +101,10 @@ namespace ds {
             for (size_t i = 0; i < size; i++) {
                 data[i] = other.data[i];
             }
+        }
+
+        [[nodiscard]] bool empty() const {
+            return size == 0;
         }
     };
 } // ds
