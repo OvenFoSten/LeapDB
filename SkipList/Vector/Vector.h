@@ -9,7 +9,7 @@
 
 namespace ds {
     namespace detail {
-        constexpr int INITIAL_VECTOR_CAPACITY = 16;
+        constexpr int INITIAL_VECTOR_CAPACITY = 32;
     }
 
     template<typename T>

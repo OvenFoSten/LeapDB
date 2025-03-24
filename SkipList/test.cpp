@@ -31,7 +31,7 @@ int findV(std::vector<int> &v, int key) {
 
 
 int main() {
-    const int DATA_SIZE = 10000;
+    const int DATA_SIZE = 100000;
     const int SWAP_COUNT = DATA_SIZE * 2;
     ds::SkipList<int, int> test(calc_score);
     std::random_device rd;
@@ -46,37 +46,27 @@ int main() {
         int b = dis(gen);
         std::swap(v[a], v[b]);
     }
-    for (int i = 0; i < DATA_SIZE; ++i) {
-        test.insert(v[i], v[i]);
-    }
-
-    // std::cout << "Insert: ";
-    for (const auto &i: v) {
-        // std::cout << i << " ";
-    }
-    // std::cout << std::endl;
-
-    // test.showStructure();
-
+    std::cout<<"Building skiplist..."<<std::endl;
     Timer t;
-    bool pass = true;
-    for (const auto &i: v) {
-        bool find = test.find(i);
-        if (!find) {
-            // std::cout << "\033[1;31mFailed to find " << i << "\033[0m" << std::endl;
-            pass = false;
-        }
+    for (int i = 0; i < DATA_SIZE; ++i) {
+        // std::cout<<"Insert "<<v[i]<<"..."<<std::endl;
+        test.insert(v[i], v[i]);
+        // test.showStructure();
     }
-    std::cout << "Find: " << t.terminate_ms() << "ms" << std::endl;
-    std::cout << (pass ? "\033[1;32mPass\033[0m" : "\033[1;31mFail\033[0m") << std::endl;
+    std::cout << t.terminate_ms()<<"ms"<<std::endl;
+    std::priority_queue<int> opponent;
     t.reset();
-    for (const auto &i: v) {
-        int a = findV(v, i);
-        if (a == -1) {
-            std::cout << "\033[1;31mFailed to find " << i << "\033[0m" << std::endl;
-            pass = false;
-        }
+    for (int i = 0; i < DATA_SIZE; ++i) {
+        opponent.push(v[i]);
     }
-    std::cout << "Find: " << t.terminate_ms() << "ms" << std::endl;
+    std::cout << t.terminate_ms()<<"ms"<<std::endl;
+    std::cout<<"Measuring random time cost..."<<std::endl;
+    t.reset();
+    for (int i = 0; i < DATA_SIZE; ++i) {
+        int a = ds::detail::raise_dis(ds::detail::raise_gen);
+    }
+    std::cout << t.terminate_ms()<<"ms"<<std::endl;
+    std::cout<<"Validating..."<<std::endl;
+    test.validate();
     return 0;
 }

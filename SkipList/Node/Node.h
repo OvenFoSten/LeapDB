@@ -23,8 +23,10 @@ namespace ds {
         int64_t score;
 
     public:
-        explicit Node(int level, size_t self_index,
-                      KEY key, VALUE value,
+        explicit Node(int level,
+                      size_t self_index,
+                      KEY key,
+                      VALUE value,
                       int64_t score): next_index(level, NODE_INVALID_INDEX),
                                       prev_index(level, NODE_INVALID_INDEX),
                                       key(key),
@@ -34,11 +36,6 @@ namespace ds {
         }
 
         explicit Node(): next_index(0), prev_index(0), key(), value(), self_index(0), score(0) {
-        }
-
-        void setLevel(int level) {
-            next_index = ds::Vector<int>(level, NODE_INVALID_INDEX);
-            prev_index = ds::Vector<int>(level, NODE_INVALID_INDEX);
         }
 
         ~Node() = default;
