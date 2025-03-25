@@ -29,6 +29,7 @@ namespace ds {
         ds::Vector<size_t> head_indexes;
         ds::Vector<Node<KEY, VALUE> > nodes;
         int current_level_count;
+        ds::Vector<size_t> free_indexes;
 
         int64_t (*calc_score)(const KEY &);
 
@@ -37,6 +38,7 @@ namespace ds {
                                                                head_indexes(
                                                                    detail::INITIAL_LEVEL_COUNT, NODE_INVALID_INDEX),
                                                                nodes(0),
+                                                               free_indexes(0),
                                                                calc_score(calc_score) {
         }
 
@@ -54,7 +56,7 @@ namespace ds {
                 auto current_find_level = current_level_count - 1;
                 auto current_find_index = head_indexes[current_find_level];
 
-                while (current_find_index == NODE_INVALID_INDEX) {
+                while (current_find_index == NODE_INVALID_INDEX && current_find_level > detail::BOTTOM_LEVEL) {
                     current_find_index = head_indexes[--current_find_level];
                 }
                 std::vector<size_t> prev_traces(current_level_count, NODE_INVALID_INDEX);
@@ -80,8 +82,15 @@ namespace ds {
                     }
                     //If we reach bottom level, insert new node
                     if (current_find_level == detail::BOTTOM_LEVEL) {
-                        auto new_index = nodes.getSize();
-                        nodes.pushBack(ds::Node<KEY, VALUE>(current_level_count, new_index, key, value, score));
+                        size_t new_index = NODE_INVALID_INDEX;
+                        if (!free_indexes.empty()) {
+                            new_index = free_indexes[free_indexes.getSize() - 1];
+                            nodes[new_index] = ds::Node<KEY, VALUE>(current_level_count, new_index, key, value, score);
+                            free_indexes.popBack();
+                        } else {
+                            new_index = nodes.getSize();
+                            nodes.pushBack(ds::Node<KEY, VALUE>(current_level_count, new_index, key, value, score));
+                        }
                         for (int i = 0; i < current_level_count; ++i) {
                             if (head_indexes[i] == NODE_INVALID_INDEX) {
                                 head_indexes[i] = new_index;
@@ -117,11 +126,14 @@ namespace ds {
         }
 
         ResultWrapper<VALUE> find(const KEY &key) {
+            if (nodes.empty()) {
+                return ResultWrapper<VALUE>{nullptr, 0};
+            }
             auto score = calc_score(key);
             auto current_find_level = current_level_count - 1;
             auto current_find_index = head_indexes[current_find_level];
 
-            while (current_find_index == NODE_INVALID_INDEX) {
+            while (current_find_index == NODE_INVALID_INDEX && current_find_level > detail::BOTTOM_LEVEL) {
                 current_find_index = head_indexes[--current_find_level];
             }
             while (true) {
@@ -144,14 +156,74 @@ namespace ds {
             }
         }
 
+        bool remove(const KEY &key) {
+            auto result = find(key);
+            if (result.hasValue()) {
+                return remove(result);
+            }
+            return false;
+        }
+
+        bool remove(const ResultWrapper<VALUE> &result) {
+            auto current_find_index = result.index;
+            if (current_find_index >= nodes.getSize()) {
+                return false;
+            }
+            if (current_find_index == NODE_INVALID_INDEX) {
+                return false;
+            }
+            for (int i = 0; i < current_level_count; ++i) {
+                char bitmask = 0B00; //prev next,valid->1 invalid->0
+                auto &current_node = nodes[current_find_index];
+                if (current_node.prev_index[i] != NODE_INVALID_INDEX) {
+                    bitmask |= 0B10;
+                }
+                if (current_node.next_index[i] != NODE_INVALID_INDEX) {
+                    bitmask |= 0B01;
+                }
+                if (bitmask == 0B00) {
+                    /*Two conditions:
+                     *1. The node is the only node in the list&&self index is head index
+                     *-> mark,collect
+                     *2. The node isn't exist in current level(and levels above)
+                     *break
+                     */
+                    if (current_node.self_index == head_indexes[i]) {
+                        head_indexes[i] = NODE_INVALID_INDEX;
+                    } else {
+                        break;
+                    }
+                }
+                if (bitmask == 0B01) {
+                    //Self is head index&&next is valid
+                    head_indexes[i] = current_node.next_index[i];
+                    nodes[current_node.next_index[i]].prev_index[i] = NODE_INVALID_INDEX;
+                }
+                if (bitmask == 0B10) {
+                    //Self is tail index&&prev is valid
+                    nodes[current_node.prev_index[i]].next_index[i] = NODE_INVALID_INDEX;
+                }
+                if (bitmask == 0B11) {
+                    //Normal case
+                    nodes[current_node.prev_index[i]].next_index[i] = current_node.next_index[i];
+                    nodes[current_node.next_index[i]].prev_index[i] = current_node.prev_index[i];
+                }
+            }
+            //Collect
+            free_indexes.pushBack(current_find_index);
+
+            return true;
+        }
+
         SkipList &operator=(const SkipList &other) = delete;
 
         SkipList(const SkipList &other) = delete;
 
         void showStructure() {
             for (int i = current_level_count - 1; i >= 0; --i) {
-                std::cout << "Level " << i << ": " << std::flush;
                 auto current_find_index = head_indexes[i];
+                if (current_find_index == NODE_INVALID_INDEX)continue;
+                std::cout << "Level " << i << ": " << std::flush;
                 while (current_find_index != NODE_INVALID_INDEX) {
                     std::cout << nodes[current_find_index].key << " " << std::flush;
                     current_find_index = nodes[current_find_index].next_index[i];

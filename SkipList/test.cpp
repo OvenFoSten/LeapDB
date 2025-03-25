@@ -31,58 +31,20 @@ int findV(std::vector<int> &v, int key) {
 
 
 int main() {
-    const int DATA_SIZE = 200000;
-    const int SWAP_COUNT = DATA_SIZE * 2;
     ds::SkipList<int, int> test(calc_score);
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis(0, DATA_SIZE - 1);
-    std::vector<int> v(DATA_SIZE);
-    for (int i = 0; i < DATA_SIZE; ++i) {
-        v[i] = i;
-    }
-    for (int i = 0; i < SWAP_COUNT; ++i) {
-        int a = dis(gen);
-        int b = dis(gen);
-        std::swap(v[a], v[b]);
-    }
-    std::cout << "Building skiplist..." << std::endl;
-    Timer t;
-    for (int i = 0; i < DATA_SIZE; ++i) {
-        // std::cout<<"Insert "<<v[i]<<"..."<<std::endl;
-        test.insert(v[i], v[i]);
-        // test.showStructure();
-    }
-    std::cout << t.terminate_ms() << "ms" << std::endl;
-    std::priority_queue<int> opponent;
-    t.reset();
-    for (int i = 0; i < DATA_SIZE; ++i) {
-        opponent.push(v[i]);
-    }
-    std::cout << t.terminate_ms() << "ms" << std::endl;
-    t.reset();
-    std::cout << "Measuring find time cost..." << std::endl;
-    for (const auto &key: v) {
-        auto result = test.find(key);
-        int value = static_cast<int>(result);
-        if (!result.hasValue()) {
-            std::cout << "Error: " << key << " not found" << std::endl;
-        } else if (value != key) {
-            std::cout << "Error: " << key << " " << value << std::endl;
-        }
-    }
-    std::cout << t.terminate_ms() << "ms" << std::endl;
-    std::cout << "Try to find -1: " << (test.find(-1).hasValue() ? "Found" : "Not Found") << std::endl;
-    std::cout << "Try to update key's value->10" << std::endl;
-    test.insert(0, 10);
-    std::cout << "Try to find key 0's value: " << *(test.find(0)) << std::endl;
-    std::cout << "Measuring random time cost..." << std::endl;
-    t.reset();
-    for (int i = 0; i < DATA_SIZE; ++i) {
-        int a = ds::detail::raise_dis(ds::detail::raise_gen);
-    }
-    std::cout << t.terminate_ms() << "ms" << std::endl;
-    std::cout << "Validating..." << std::endl;
-    test.validate();
+    test.insert(1, 1);
+    test.insert(2, 2);
+    test.insert(3, 3);
+    test.insert(4, 4);
+    test.showStructure();
+    test.remove(test.find(1));
+    test.showStructure();
+    test.insert(5, 5);
+    test.insert(6, 6);
+    test.showStructure();
+    std::cout << "Remove -1" << std::endl;
+    std::cout << (test.find(-1).hasValue() ? "Success" : "Failed") << std::endl;
+    std::cout << (test.remove(-1) ? "Success" : "Failed") << std::endl;
+    test.showStructure();
     return 0;
 }
