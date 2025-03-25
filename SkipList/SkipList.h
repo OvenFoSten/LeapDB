@@ -115,6 +115,34 @@ namespace ds {
             }
         }
 
+        VALUE* find(const KEY &key) {
+            auto score = calc_score(key);
+            auto current_find_level = current_level_count - 1;
+            auto current_find_index = head_indexes[current_find_level];
+
+            while (current_find_index == NODE_INVALID_INDEX) {
+                current_find_index = head_indexes[--current_find_level];
+            }
+            while (true) {
+                while (current_find_index != NODE_INVALID_INDEX && score > nodes[current_find_index].score) {
+                    current_find_index = nodes[current_find_index].next_index[current_find_level];
+                }
+                if (current_find_index != NODE_INVALID_INDEX && score == nodes[current_find_index].score) {
+                    return &nodes[current_find_index].value;
+                }
+                if (current_find_level == detail::BOTTOM_LEVEL) {
+                    return nullptr;
+                }
+                if (current_find_index != NODE_INVALID_INDEX) {
+                    current_find_index = nodes[current_find_index].prev_index[current_find_level];
+                }
+                if (current_find_index == NODE_INVALID_INDEX) {
+                    current_find_index = head_indexes[current_find_level - 1];
+                }
+                --current_find_level;
+            }
+        }
+
         SkipList &operator=(const SkipList &other) = delete;
 
         SkipList(const SkipList &other) = delete;

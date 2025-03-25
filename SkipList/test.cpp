@@ -46,27 +46,42 @@ int main() {
         int b = dis(gen);
         std::swap(v[a], v[b]);
     }
-    std::cout<<"Building skiplist..."<<std::endl;
+    std::cout << "Building skiplist..." << std::endl;
     Timer t;
     for (int i = 0; i < DATA_SIZE; ++i) {
         // std::cout<<"Insert "<<v[i]<<"..."<<std::endl;
         test.insert(v[i], v[i]);
         // test.showStructure();
     }
-    std::cout << t.terminate_ms()<<"ms"<<std::endl;
+    std::cout << t.terminate_ms() << "ms" << std::endl;
     std::priority_queue<int> opponent;
     t.reset();
     for (int i = 0; i < DATA_SIZE; ++i) {
         opponent.push(v[i]);
     }
-    std::cout << t.terminate_ms()<<"ms"<<std::endl;
-    std::cout<<"Measuring random time cost..."<<std::endl;
+    std::cout << t.terminate_ms() << "ms" << std::endl;
+    t.reset();
+    std::cout << "Measuring find time cost..." << std::endl;
+    for (const auto &key: v) {
+        auto *value = test.find(key);
+        if (value == nullptr) {
+            std::cout << "Error: " << key << " not found" << std::endl;
+        }else if (*value != key) {
+            std::cout << "Error: " << key << " " << *value << std::endl;
+        }
+    }
+    std::cout << t.terminate_ms() << "ms" << std::endl;
+    std::cout<<"Try to find -1: "<<(test.find(-1)==nullptr?"Not found":"Found")<<std::endl;
+    std::cout<<"Try to update key's value->10"<<std::endl;
+    test.insert(0, 10);
+    std::cout<<"Try to find key 0's value: "<<*(test.find(0))<<std::endl;
+    std::cout << "Measuring random time cost..." << std::endl;
     t.reset();
     for (int i = 0; i < DATA_SIZE; ++i) {
         int a = ds::detail::raise_dis(ds::detail::raise_gen);
     }
-    std::cout << t.terminate_ms()<<"ms"<<std::endl;
-    std::cout<<"Validating..."<<std::endl;
+    std::cout << t.terminate_ms() << "ms" << std::endl;
+    std::cout << "Validating..." << std::endl;
     test.validate();
     return 0;
 }
