@@ -11,10 +11,11 @@
 #include<vector>
 
 #include<iostream>
+#include <unordered_set>
 
 namespace ds {
     namespace detail {
-        constexpr int INITIAL_LEVEL_COUNT = 8;
+        constexpr int INITIAL_LEVEL_COUNT = 64;
         constexpr int BOTTOM_LEVEL = 0;
         inline std::random_device raise_rd;
         inline std::mt19937 raise_gen(raise_rd());
@@ -49,9 +50,6 @@ namespace ds {
                     }
                 }
             } else {
-                auto new_index = nodes.getSize();
-                nodes.pushBack(ds::Node<KEY, VALUE>(current_level_count, new_index, key, value, score));
-
                 auto current_find_level = current_level_count - 1;
                 auto current_find_index = head_indexes[current_find_level];
 
@@ -62,31 +60,27 @@ namespace ds {
                 std::vector<size_t> next_traces(current_level_count, NODE_INVALID_INDEX);
                 while (true) {
                     //Browse current level till the end/next node has higher score
-                    bool meet_bigger = false;
-                    while (true) {
-                        if (nodes[current_find_index].score > score) {
-                            meet_bigger = true;
-                            break;
-                        }
+                    while (current_find_index != NODE_INVALID_INDEX && score > nodes[current_find_index].score) {
                         if (nodes[current_find_index].next_index[current_find_level] == NODE_INVALID_INDEX) {
-                            break;
+                            prev_traces[current_find_level] = current_find_index;
                         }
                         current_find_index = nodes[current_find_index].next_index[current_find_level];
                     }
-                    if (meet_bigger) {
-                        next_traces[current_find_level] = current_find_index;
+                    // if (meet_bigger) {
+                    next_traces[current_find_level] = current_find_index;
+                    if (current_find_index != NODE_INVALID_INDEX) {
                         prev_traces[current_find_level] = nodes[current_find_index].prev_index[current_find_level];
-                    } else {
-                        next_traces[current_find_level] = NODE_INVALID_INDEX;
-                        prev_traces[current_find_level] = current_find_index;
-                    }
-                    //If key already exists, update value
-                    if (score == nodes[current_find_index].score) {
-                        nodes[current_find_index].value = value;
-                        break;
+
+                        //If key already exists, update value
+                        if (score == nodes[current_find_index].score) {
+                            nodes[current_find_index].value = value;
+                            return;
+                        }
                     }
                     //If we reach bottom level, insert new node
                     if (current_find_level == detail::BOTTOM_LEVEL) {
+                        auto new_index = nodes.getSize();
+                        nodes.pushBack(ds::Node<KEY, VALUE>(current_level_count, new_index, key, value, score));
                         for (int i = 0; i < current_level_count; ++i) {
                             if (head_indexes[i] == NODE_INVALID_INDEX) {
                                 head_indexes[i] = new_index;
@@ -108,22 +102,15 @@ namespace ds {
                                 break;
                             }
                         }
-                        break;
+                        return;
                     }
-                    //If we haven't reach bottom level, go down one level& adjust to prev_traces
-                    // std::cout<<"Level " << current_find_level << " ";
-                    // std::cout << "Prev: " << (prev_traces[current_find_level] == NODE_INVALID_INDEX
-                    //                               ? "INVALID"
-                    //                               : std::to_string(nodes[prev_traces[current_find_level]].key));
                     if (prev_traces[current_find_level] != NODE_INVALID_INDEX) {
                         current_find_index = prev_traces[current_find_level];
                     }
-                    //If prev_traces[current_find_level] == NODE_INVALID_INDEX, we need to go to head of this level
                     if (prev_traces[current_find_level] == NODE_INVALID_INDEX) {
-                        current_find_index = head_indexes[current_find_level-1];
+                        current_find_index = head_indexes[current_find_level - 1];
                     }
                     --current_find_level;
-                    // std::cout << ",Jump to " << nodes[current_find_index].key << std::endl;
                 }
             }
         }
@@ -146,29 +133,28 @@ namespace ds {
         }
 
         void validate() {
-            std::vector<std::vector<size_t> > layers(current_level_count);
-            for (int i = 0; i < current_level_count; ++i) {
-                auto current_find_index = head_indexes[i];
-                while (current_find_index != NODE_INVALID_INDEX) {
-                    layers[i].push_back(nodes[current_find_index].key);
-                    current_find_index = nodes[current_find_index].next_index[i];
+            std::vector<std::unordered_set<int64_t> > check(current_level_count);
+            for (int current_level = 0; current_level < current_level_count; ++current_level) {
+                auto current_index = head_indexes[current_level];
+                size_t prev_index = NODE_INVALID_INDEX;
+                while (current_index != NODE_INVALID_INDEX) {
+                    if (prev_index != NODE_INVALID_INDEX) {
+                        if (nodes[current_index].score <= nodes[prev_index].score) {
+                            std::cout << "Error! Key: " << nodes[prev_index].key << " is bigger than Key: " << nodes[
+                                current_index].key << std::endl;
+                        }
+                    }
+                    prev_index = current_index;
+                    current_index = nodes[current_index].next_index[current_level];
                 }
             }
-            //Key exists above should exist below
-            auto find = [&](int target, int layer)-> bool {
-                for (int i = 0; i < layers[layer].size(); ++i) {
-                    if (layers[layer][i] == target) {
-                        return true;
-                    }
-                }
-                return false;
-            };
-            for (int i = 0; i < current_level_count; ++i) {
-                for (const auto &key: layers[i]) {
-                    for (int j = 0; j < i; ++j) {
-                        if (!find(key, j)) {
-                            std::cout << "Key " << key << " exists in level " << i << " but not in level " << j <<
-                                    std::endl;
+
+            for (int current_level = current_level_count - 1; current_level >= 0; --current_level) {
+                auto &current_layer = check[current_level];
+                for (const auto &score: current_layer) {
+                    for (int i = current_level; i >= 0; --i) {
+                        if (!check[i].contains(score)) {
+                            std::cout << "Error! Key: " << score << " is not in level " << i << std::endl;
                         }
                     }
                 }

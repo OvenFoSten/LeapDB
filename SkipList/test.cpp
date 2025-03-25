@@ -31,7 +31,7 @@ int findV(std::vector<int> &v, int key) {
 
 
 int main() {
-    const int DATA_SIZE = 100000;
+    const int DATA_SIZE = 200000;
     const int SWAP_COUNT = DATA_SIZE * 2;
     ds::SkipList<int, int> test(calc_score);
     std::random_device rd;
