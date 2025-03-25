@@ -5,6 +5,8 @@
 #ifndef RESULTWRAPPER_H
 #define RESULTWRAPPER_H
 
+#include <cstddef>
+
 
 namespace ds {
     template<typename VALUE>
@@ -26,6 +28,10 @@ namespace ds {
 
         explicit operator VALUE() {
             return *value_ptr;
+        }
+
+        bool hasValue() {
+            return value_ptr != nullptr;
         }
 
 

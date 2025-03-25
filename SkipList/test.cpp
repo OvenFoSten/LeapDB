@@ -63,18 +63,19 @@ int main() {
     t.reset();
     std::cout << "Measuring find time cost..." << std::endl;
     for (const auto &key: v) {
-        auto *value = test.find(key);
-        if (value == nullptr) {
+        auto result = test.find(key);
+        int value = static_cast<int>(result);
+        if (!result.hasValue()) {
             std::cout << "Error: " << key << " not found" << std::endl;
-        }else if (*value != key) {
-            std::cout << "Error: " << key << " " << *value << std::endl;
+        } else if (value != key) {
+            std::cout << "Error: " << key << " " << value << std::endl;
         }
     }
     std::cout << t.terminate_ms() << "ms" << std::endl;
-    std::cout<<"Try to find -1: "<<(test.find(-1)==nullptr?"Not found":"Found")<<std::endl;
-    std::cout<<"Try to update key's value->10"<<std::endl;
+    std::cout << "Try to find -1: " << (test.find(-1).hasValue() ? "Found" : "Not Found") << std::endl;
+    std::cout << "Try to update key's value->10" << std::endl;
     test.insert(0, 10);
-    std::cout<<"Try to find key 0's value: "<<*(test.find(0))<<std::endl;
+    std::cout << "Try to find key 0's value: " << *(test.find(0)) << std::endl;
     std::cout << "Measuring random time cost..." << std::endl;
     t.reset();
     for (int i = 0; i < DATA_SIZE; ++i) {
