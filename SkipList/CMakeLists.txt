@@ -9,6 +9,8 @@ add_executable(SkipList test.cpp
         Vector/Vector.cpp
         Vector/Vector.h
         SkipList.cpp
-        SkipList.h)
+        SkipList.h
+        ResultWrapper/ResultWrapper.cpp
+        ResultWrapper/ResultWrapper.h)
 
 INCLUDE_DIRECTORIES(./)
