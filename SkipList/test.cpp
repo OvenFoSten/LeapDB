@@ -46,5 +46,6 @@ int main() {
     std::cout << (test.find(-1).hasValue() ? "Success" : "Failed") << std::endl;
     std::cout << (test.remove(-1) ? "Success" : "Failed") << std::endl;
     test.showStructure();
+    test.validateStructure();
     return 0;
 }

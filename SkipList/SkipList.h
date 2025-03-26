@@ -233,7 +233,9 @@ namespace ds {
             std::cout << std::endl;
         }
 
-        void validate() {
+        bool validateStructure() {
+            bool pass = true;
+            std::cout << "Validating structure..." << std::endl;
             std::vector<std::unordered_set<int64_t> > check(current_level_count);
             for (int current_level = 0; current_level < current_level_count; ++current_level) {
                 auto current_index = head_indexes[current_level];
@@ -243,10 +245,23 @@ namespace ds {
                         if (nodes[current_index].score <= nodes[prev_index].score) {
                             std::cout << "Error! Key: " << nodes[prev_index].key << " is bigger than Key: " << nodes[
                                 current_index].key << std::endl;
+                            pass = false;
                         }
                     }
                     prev_index = current_index;
+                    check[current_level].insert(nodes[current_index].score);
                     current_index = nodes[current_index].next_index[current_level];
+                }
+                auto current_layer_size = check[current_level].size();
+                current_index = prev_index;
+                size_t count = 0;
+                while (current_index != NODE_INVALID_INDEX) {
+                    count++;
+                    current_index = nodes[current_index].prev_index[current_level];
+                }
+                if (current_layer_size != count) {
+                    std::cout << "Error! Level " << current_level << " structure is broken! " << std::endl;
+                    pass = false;
                 }
             }
 
@@ -255,11 +270,15 @@ namespace ds {
                 for (const auto &score: current_layer) {
                     for (int i = current_level; i >= 0; --i) {
                         if (!check[i].contains(score)) {
-                            std::cout << "Error! Key: " << score << " is not in level " << i << std::endl;
+                            std::cout << "Error! Score: " << score << " is miss in level " << i << std::endl;
+                            pass = false;
                         }
                     }
                 }
             }
+            std::cout << "Validation complete!" << std::endl;
+
+            return pass;
         }
     };
 } //ds
