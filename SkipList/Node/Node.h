@@ -9,6 +9,8 @@
 #include "Vector/Vector.h"
 #include <cstdint>
 
+#include<mutex>
+
 namespace ds {
     static constexpr int NODE_INVALID_INDEX = -1;
 
@@ -21,6 +23,8 @@ namespace ds {
         VALUE value;
         size_t self_index;
         int64_t score;
+
+        std::mutex node_mutex;
 
     public:
         explicit Node(int level,
